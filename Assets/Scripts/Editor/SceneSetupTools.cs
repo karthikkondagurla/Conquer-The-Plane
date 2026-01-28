@@ -132,6 +132,28 @@ public class SceneSetupTools : EditorWindow
             spawn.transform.position = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
         }
 
+        // Enemies (3)
+        for (int j = 0; j < 3; j++)
+        {
+            GameObject enemy = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            enemy.name = "Enemy_" + j;
+            // Random position
+            enemy.transform.position = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
+            
+            // Visuals
+            Renderer r = enemy.GetComponent<Renderer>();
+            Material m = new Material(Shader.Find("Standard"));
+            m.color = Color.black;
+            r.sharedMaterial = m;
+
+            // Logic
+            enemy.AddComponent<EnemyAI>();
+            
+            // Physics
+            Rigidbody rb = enemy.AddComponent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.FreezeRotation; // Slide, don't roll
+        }
+
         // Wormholes (3-5)
         int count = Random.Range(3, 6);
         for (int k = 0; k < count; k++)
