@@ -40,6 +40,23 @@ public class Wormhole : MonoBehaviour
                 Debug.LogError("LoadingUI Instance not found! Ensure the Bootstrap scene was loaded first.");
             }
         }
+        else if (other.CompareTag("Enemy") || other.name.Contains("Enemy"))
+        {
+            // Enemy Teleportation Logic:
+            // "Teleport if they touch the wormholes"
+            // Simple approach: Warp to a random position in CURRENT map immediately.
+            // This keeps them moving and "using" the wormhole without deleting them.
+            
+            Vector3 randomPos = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
+            other.transform.position = randomPos;
+            
+            // If it has EnemyAI, reset its roam target too so it doesn't walk back
+            EnemyAI ai = other.GetComponent<EnemyAI>();
+            if (ai != null)
+            {
+                ai.PickNewRoamTarget();
+            }
+        }
     }
 
     private int GetRandomMapIndex()
