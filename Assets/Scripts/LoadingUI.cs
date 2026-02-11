@@ -8,7 +8,7 @@ public class LoadingUI : MonoBehaviour
     public static LoadingUI Instance { get; private set; }
     
     [SerializeField] private Image fadeImage;
-    [SerializeField] private float fadeDuration = 0.3f;
+    [SerializeField] private float fadeDuration = 0.5f;
 
     void Awake()
     {
@@ -40,23 +40,85 @@ public class LoadingUI : MonoBehaviour
 
     private void CreateDefaultUI()
     {
-        GameObject canvasObj = new GameObject("LoadingCanvas");
-        DontDestroyOnLoad(canvasObj);
-        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        EnsureEventSystem();
+
+        // scalable UI creation
+        GameObject canvasGO = new GameObject("LoadingCanvas");
+        canvasGO.transform.SetParent(transform);
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 999;
-        canvasObj.AddComponent<CanvasScaler>();
-        canvasObj.AddComponent<GraphicRaycaster>();
+        canvas.sortingOrder = 999; // On top of everything
+        canvasGO.AddComponent<CanvasScaler>();
+        canvasGO.AddComponent<GraphicRaycaster>();
         
-        GameObject imageObj = new GameObject("FadeImage");
-        imageObj.transform.SetParent(canvasObj.transform, false);
-        fadeImage = imageObj.AddComponent<Image>();
+        GameObject imageGO = new GameObject("FadeImage");
+        imageGO.transform.SetParent(canvasGO.transform, false);
+        
+        fadeImage = imageGO.AddComponent<Image>();
         fadeImage.color = Color.black;
         
-        RectTransform rt = imageObj.GetComponent<RectTransform>();
+        // Stretch to fill
+        RectTransform rt = imageGO.GetComponent<RectTransform>();
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         rt.sizeDelta = Vector2.zero;
+
+        CreatePauseUI(canvasGO.transform);
+    }
+
+    private void CreatePauseUI(Transform parent)
+    {
+        // 1. Create Panel
+        GameObject panelObj = new GameObject("PausePanel");
+        panelObj.transform.SetParent(parent, false);
+        Image panelImage = panelObj.AddComponent<Image>();
+        panelImage.color = new Color(0, 0, 0, 0.8f); // Darker overlay
+        
+        RectTransform panelRect = panelObj.GetComponent<RectTransform>();
+        panelRect.anchorMin = Vector2.zero;
+        panelRect.anchorMax = Vector2.one;
+        panelRect.sizeDelta = Vector2.zero;
+
+        // 2. Attach Script
+        PauseMenu pauseMenu = gameObject.AddComponent<PauseMenu>();
+        pauseMenu.Setup(panelObj);
+
+        // 3. Create Buttons
+        CreatePauseButton("ResumeButton", "Resume", 50, panelObj.transform, () => pauseMenu.Resume());
+        CreatePauseButton("NewGameButton", "New Game", -50, panelObj.transform, () => pauseMenu.RestartGame());
+        CreatePauseButton("QuitButton", "Quit", -150, panelObj.transform, () => pauseMenu.QuitGame());
+        
+        // Hide initially handled by Setup
+    }
+
+    private void CreatePauseButton(string name, string text, float yOffset, Transform parent, UnityEngine.Events.UnityAction action)
+    {
+        GameObject buttonObj = new GameObject(name);
+        buttonObj.transform.SetParent(parent, false);
+
+        Image img = buttonObj.AddComponent<Image>();
+        img.color = Color.white;
+        
+        Button btn = buttonObj.AddComponent<Button>();
+        btn.onClick.AddListener(action);
+
+        RectTransform rect = buttonObj.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(250, 60);
+        rect.anchoredPosition = new Vector2(0, yOffset);
+
+        GameObject textObj = new GameObject("Text");
+        textObj.transform.SetParent(buttonObj.transform, false);
+        Text txt = textObj.AddComponent<Text>();
+        txt.text = text;
+        txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        txt.alignment = TextAnchor.MiddleCenter;
+        txt.color = Color.black;
+        txt.fontSize = 24;
+        
+        RectTransform textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.sizeDelta = Vector2.zero;
     }
 
     public IEnumerator FadeOut()
@@ -69,10 +131,15 @@ public class LoadingUI : MonoBehaviour
         {
             t += Time.deltaTime;
             float alpha = t / fadeDuration;
-            fadeImage.color = new Color(0, 0, 0, alpha);
+            Color c = fadeImage.color;
+            c.a = alpha;
+            fadeImage.color = c;
             yield return null;
         }
-        fadeImage.color = Color.black;
+        
+        Color final = fadeImage.color;
+        final.a = 1;
+        fadeImage.color = final;
     }
 
     void OnEnable()
@@ -103,10 +170,16 @@ public class LoadingUI : MonoBehaviour
         {
             t += Time.deltaTime;
             float alpha = 1 - (t / fadeDuration);
-            fadeImage.color = new Color(0, 0, 0, alpha);
+            Color c = fadeImage.color;
+            c.a = alpha;
+            fadeImage.color = c;
             yield return null;
         }
-        fadeImage.color = new Color(0, 0, 0, 0);
+        
+        Color final = fadeImage.color;
+        final.a = 0;
+        fadeImage.color = final;
+        fadeImage.gameObject.SetActive(false);
     }
     
     private bool isTeleporting = false;
@@ -174,4 +247,14 @@ public class LoadingUI : MonoBehaviour
         isTeleporting = false;
     }
 
+    private void EnsureEventSystem()
+    {
+        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+            DontDestroyOnLoad(eventSystem);
+        }
+    }
 }

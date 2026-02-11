@@ -73,7 +73,8 @@ public class Wormhole : MonoBehaviour
         // We only want to jump to Maps (1-4).
         {
             // Don't jump to current scene (unless there's only 1 map?)
-            if (i != currentSceneIndex)
+            // Also explicitly EXCLUDE index 0 (Bootstrap) to be safe
+            if (i != currentSceneIndex && i != 0)
             {
                 availableIndices.Add(i);
             }
