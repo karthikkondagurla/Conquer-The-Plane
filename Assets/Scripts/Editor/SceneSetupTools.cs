@@ -129,8 +129,36 @@ public class SceneSetupTools : EditorWindow
         // CreateHealthUI(); // Removed by user request
 
         // 4. Create Player
-        GameObject player = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        
+        // Note: The structure appears to be Assets/RobotSphere/Assets/Prefab/robotSphere.prefab based on directory listing
+        string prefabPath = "Assets/RobotSphere/Assets/Prefab/robotSphere.prefab";
+        GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        GameObject player;
+
+        if (playerPrefab != null)
+        {
+            player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
+        }
+        else
+        {
+            // Try alternative path just in case
+            prefabPath = "Assets/RobotSphere/Prefab/robotSphere.prefab";
+            playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            
+            if (playerPrefab != null)
+            {
+                 player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
+            }
+            else
+            {
+                Debug.LogError($"RobotSphere prefab NOT found at {prefabPath} or original path. Falling back to primitive sphere.");
+                player = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            }
+        }
+
+        // Ensure we have a Collider
+        Collider col = player.GetComponent<Collider>();
+        if (col == null) col = player.AddComponent<SphereCollider>();
+
         // Add Physics Material for rolling (friction)
         PhysicsMaterial ballMat = new PhysicsMaterial();
         ballMat.dynamicFriction = 0.6f;
@@ -138,10 +166,13 @@ public class SceneSetupTools : EditorWindow
         ballMat.bounciness = 0.6f;
         ballMat.frictionCombine = PhysicsMaterialCombine.Average;
         ballMat.bounceCombine = PhysicsMaterialCombine.Average;
-        player.GetComponent<Collider>().material = ballMat;
+        col.material = ballMat;
         player.name = "PlayerManager";
         player.tag = "Player";
-        player.AddComponent<Rigidbody>().isKinematic = false; 
+        
+        Rigidbody rb = player.GetComponent<Rigidbody>();
+        if (rb == null) rb = player.AddComponent<Rigidbody>();
+        rb.isKinematic = false; 
         player.AddComponent<PlayerPersistent>();
         player.AddComponent<PlayerHealth>(); // Add Health Component
         player.AddComponent<SpikeSkill>();   // Add Spike Skill (K to plant crystals)
