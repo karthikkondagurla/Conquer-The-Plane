@@ -129,64 +129,8 @@ public class SceneSetupTools : EditorWindow
         // CreateHealthUI(); // Removed by user request
 
         // 4. Create Player
-        // Note: The structure appears to be Assets/RobotSphere/Assets/Prefab/robotSphere.prefab based on directory listing
-        string prefabPath = "Assets/RobotSphere/Assets/Prefab/robotSphere.prefab";
-        GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-        GameObject player;
-
-        if (playerPrefab != null)
-        {
-            player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
-        }
-        else
-        {
-            // Try alternative path just in case
-            prefabPath = "Assets/RobotSphere/Prefab/robotSphere.prefab";
-            playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-            
-            if (playerPrefab != null)
-            {
-                 player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
-            }
-            else
-            {
-                Debug.LogError($"RobotSphere prefab NOT found at {prefabPath} or original path. Falling back to primitive sphere.");
-                player = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            }
-        }
-
-        // Set scale to 9 as requested (down from huge import scale)
-        player.transform.localScale = new Vector3(9f, 9f, 9f);
-
-        // Ensure we have a Collider
-        SphereCollider col = player.GetComponent<SphereCollider>();
-        if (col == null) 
-        {
-            col = player.AddComponent<SphereCollider>();
-        }
+        GameObject player = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         
-        // Calculate bounds of the visual mesh to set collider size accurately
-        Renderer[] renderers = player.GetComponentsInChildren<Renderer>();
-        if (renderers.Length > 0)
-        {
-            Bounds bounds = renderers[0].bounds;
-            foreach (Renderer r in renderers)
-            {
-                bounds.Encapsulate(r.bounds);
-            }
-            
-            // Radius should be the largest extent (half-size)
-            // Use local scale adjustment because radius is in local space
-            float maxExtent = Mathf.Max(bounds.extents.x, Mathf.Max(bounds.extents.y, bounds.extents.z));
-            col.radius = maxExtent / 9f; // We scaled the parent to 9, so local radius needs to be relative to that
-            col.center = (bounds.center - player.transform.position) / 9f;
-        }
-        else
-        {
-            // Fallback if no renderers
-            col.radius = 0.5f; 
-        }
-
         // Add Physics Material for rolling (friction)
         PhysicsMaterial ballMat = new PhysicsMaterial();
         ballMat.dynamicFriction = 0.6f;
@@ -194,13 +138,10 @@ public class SceneSetupTools : EditorWindow
         ballMat.bounciness = 0.6f;
         ballMat.frictionCombine = PhysicsMaterialCombine.Average;
         ballMat.bounceCombine = PhysicsMaterialCombine.Average;
-        col.material = ballMat;
+        player.GetComponent<Collider>().material = ballMat;
         player.name = "PlayerManager";
         player.tag = "Player";
-        
-        Rigidbody rb = player.GetComponent<Rigidbody>();
-        if (rb == null) rb = player.AddComponent<Rigidbody>();
-        rb.isKinematic = false; 
+        player.AddComponent<Rigidbody>().isKinematic = false; 
         player.AddComponent<PlayerPersistent>();
         player.AddComponent<PlayerHealth>(); // Add Health Component
         player.AddComponent<SpikeSkill>();   // Add Spike Skill (K to plant crystals)
