@@ -42,7 +42,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            // Debug.Log("Player colliding with Enemy!"); 
+            Debug.Log($"Player colliding with Enemy: {collision.gameObject.name}"); 
             TakeDamage(10f * Time.deltaTime); // Continuous damage
         }
     }

@@ -4,24 +4,13 @@ public class EnemyAI : MonoBehaviour
 {
     public float moveSpeed = 3.0f;
     public float chaseDistance = 10.0f;
-    public int originMapID = 0; // Assigned by spawner
+    public int currentMapID = 0; // Managed by EnemyManager
     
     private Transform playerTarget;
     private Vector3 roamTarget;
-    private bool isRoaming;
-    private bool isPersistent = false; // Flag to prevent duplicate DontDestroy
 
     void Start()
     {
-        // Persistence
-        DontDestroyOnLoad(gameObject);
-        
-        // Register counts
-        if (EnemyManager.Instance != null)
-        {
-            EnemyManager.Instance.RegisterEnemy(originMapID);
-        }
-
         // Find the player
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -33,13 +22,7 @@ public class EnemyAI : MonoBehaviour
         PickNewRoamTarget();
     }
 
-    void OnDestroy()
-    {
-        if (EnemyManager.Instance != null)
-        {
-            EnemyManager.Instance.UnregisterEnemy(originMapID);
-        }
-    }
+    // OnDestroy logic removed as Manager handles lifecycle
 
     void Update()
     {

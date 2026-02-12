@@ -68,43 +68,88 @@ public class LoadingUI : MonoBehaviour
 
     private void CreatePauseUI(Transform parent)
     {
-        // 1. Create Panel
+        // Full-screen dark overlay
         GameObject panelObj = new GameObject("PausePanel");
         panelObj.transform.SetParent(parent, false);
         Image panelImage = panelObj.AddComponent<Image>();
-        panelImage.color = new Color(0, 0, 0, 0.8f); // Darker overlay
+        panelImage.color = new Color(0.02f, 0.03f, 0.08f, 0.92f); // Dark blue-tinted
         
         RectTransform panelRect = panelObj.GetComponent<RectTransform>();
         panelRect.anchorMin = Vector2.zero;
         panelRect.anchorMax = Vector2.one;
         panelRect.sizeDelta = Vector2.zero;
 
-        // 2. Attach Script
+        // "PAUSED" title
+        GameObject titleObj = new GameObject("PausedTitle");
+        titleObj.transform.SetParent(panelObj.transform, false);
+        Text titleText = titleObj.AddComponent<Text>();
+        titleText.text = "PAUSED";
+        titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        titleText.fontSize = 56;
+        titleText.fontStyle = FontStyle.Bold;
+        titleText.color = new Color(0f, 0.9f, 1f, 0.8f); // Cyan
+        titleText.alignment = TextAnchor.MiddleCenter;
+        RectTransform titleRect = titleObj.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.5f, 0.5f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.5f);
+        titleRect.pivot = new Vector2(0.5f, 0.5f);
+        titleRect.anchoredPosition = new Vector2(0, 130);
+        titleRect.sizeDelta = new Vector2(400, 70);
+
+        // Accent line
+        GameObject lineObj = new GameObject("AccentLine");
+        lineObj.transform.SetParent(panelObj.transform, false);
+        Image lineImg = lineObj.AddComponent<Image>();
+        lineImg.color = new Color(0f, 0.9f, 1f, 0.4f);
+        RectTransform lineRect = lineObj.GetComponent<RectTransform>();
+        lineRect.anchorMin = new Vector2(0.3f, 0.5f);
+        lineRect.anchorMax = new Vector2(0.7f, 0.5f);
+        lineRect.pivot = new Vector2(0.5f, 0.5f);
+        lineRect.anchoredPosition = new Vector2(0, 90);
+        lineRect.sizeDelta = new Vector2(0, 2);
+
         PauseMenu pauseMenu = gameObject.AddComponent<PauseMenu>();
         pauseMenu.Setup(panelObj);
 
-        // 3. Create Buttons
-        CreatePauseButton("ResumeButton", "Resume", 50, panelObj.transform, () => pauseMenu.Resume());
-        CreatePauseButton("NewGameButton", "New Game", -50, panelObj.transform, () => pauseMenu.RestartGame());
-        CreatePauseButton("QuitButton", "Quit", -150, panelObj.transform, () => pauseMenu.QuitGame());
-        
-        // Hide initially handled by Setup
+        // Styled buttons
+        CreatePauseButton("ResumeButton", "RESUME", 40, panelObj.transform, () => pauseMenu.Resume(),
+            new Color(0f, 0.9f, 1f, 0.7f), new Color(0f, 0.9f, 1f)); // Cyan
+        CreatePauseButton("NewGameButton", "NEW GAME", -30, panelObj.transform, () => pauseMenu.RestartGame(),
+            new Color(1f, 0.85f, 0.2f, 0.7f), new Color(1f, 0.85f, 0.2f)); // Gold
+        CreatePauseButton("QuitButton", "QUIT", -100, panelObj.transform, () => pauseMenu.QuitGame(),
+            new Color(1f, 0.3f, 0.3f, 0.6f), new Color(1f, 0.4f, 0.4f)); // Red
     }
 
-    private void CreatePauseButton(string name, string text, float yOffset, Transform parent, UnityEngine.Events.UnityAction action)
+    private void CreatePauseButton(string name, string text, float yOffset, Transform parent, 
+        UnityEngine.Events.UnityAction action, Color borderColor, Color textColor)
     {
         GameObject buttonObj = new GameObject(name);
         buttonObj.transform.SetParent(parent, false);
 
-        Image img = buttonObj.AddComponent<Image>();
-        img.color = Color.white;
-        
+        Image borderImg = buttonObj.AddComponent<Image>();
+        borderImg.color = borderColor;
+
         Button btn = buttonObj.AddComponent<Button>();
+        ColorBlock colors = btn.colors;
+        colors.normalColor = borderColor;
+        colors.highlightedColor = new Color(borderColor.r, borderColor.g, borderColor.b, 1f);
+        colors.pressedColor = new Color(borderColor.r * 0.7f, borderColor.g * 0.7f, borderColor.b * 0.7f, 1f);
+        btn.colors = colors;
         btn.onClick.AddListener(action);
 
         RectTransform rect = buttonObj.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(250, 60);
+        rect.sizeDelta = new Vector2(280, 50);
         rect.anchoredPosition = new Vector2(0, yOffset);
+
+        // Inner dark fill
+        GameObject innerObj = new GameObject("InnerBG");
+        innerObj.transform.SetParent(buttonObj.transform, false);
+        Image innerImg = innerObj.AddComponent<Image>();
+        innerImg.color = new Color(0.03f, 0.03f, 0.06f, 0.95f);
+        RectTransform innerRect = innerObj.GetComponent<RectTransform>();
+        innerRect.anchorMin = Vector2.zero;
+        innerRect.anchorMax = Vector2.one;
+        innerRect.sizeDelta = new Vector2(-4, -4);
 
         GameObject textObj = new GameObject("Text");
         textObj.transform.SetParent(buttonObj.transform, false);
@@ -112,8 +157,9 @@ public class LoadingUI : MonoBehaviour
         txt.text = text;
         txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         txt.alignment = TextAnchor.MiddleCenter;
-        txt.color = Color.black;
-        txt.fontSize = 24;
+        txt.color = textColor;
+        txt.fontSize = 22;
+        txt.fontStyle = FontStyle.Bold;
         
         RectTransform textRect = textObj.GetComponent<RectTransform>();
         textRect.anchorMin = Vector2.zero;

@@ -4,9 +4,30 @@ using System.Collections.Generic;
 
 public class Wormhole : MonoBehaviour
 {
+    private Vector3 fullScale;
+    private float spawnDuration = 0.6f; // seconds to grow to full size
+
     private void Start()
     {
+        fullScale = transform.localScale;
+        StartCoroutine(SpawnAnimation());
         StartCoroutine(RelocateRoutine());
+    }
+
+    private System.Collections.IEnumerator SpawnAnimation()
+    {
+        transform.localScale = Vector3.zero;
+        float elapsed = 0f;
+        while (elapsed < spawnDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / spawnDuration;
+            // Ease-out: fast start, slow finish
+            float eased = 1f - (1f - t) * (1f - t);
+            transform.localScale = fullScale * eased;
+            yield return null;
+        }
+        transform.localScale = fullScale;
     }
 
     private System.Collections.IEnumerator RelocateRoutine()
@@ -16,10 +37,12 @@ public class Wormhole : MonoBehaviour
             float waitTime = Random.Range(1f, 5f);
             yield return new WaitForSeconds(waitTime);
 
-            // Relocate to a random position on the floor (Assumed 25x25 area from SetupTools)
-            // Valid range approx -10 to 10 to stay on the plane safely
-            Vector3 newPos = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
+            // Relocate to a random position on the floor
+            Vector3 newPos = new Vector3(Random.Range(-10f, 10f), 1.25f, Random.Range(-10f, 10f));
             transform.position = newPos;
+
+            // Play spawn animation again
+            yield return StartCoroutine(SpawnAnimation());
         }
     }
 
@@ -42,19 +65,11 @@ public class Wormhole : MonoBehaviour
         }
         else if (other.CompareTag("Enemy") || other.name.Contains("Enemy"))
         {
-            // Enemy Teleportation Logic:
-            // "Teleport if they touch the wormholes"
-            // Simple approach: Warp to a random position in CURRENT map immediately.
-            // This keeps them moving and "using" the wormhole without deleting them.
-            
-            Vector3 randomPos = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
-            other.transform.position = randomPos;
-            
-            // If it has EnemyAI, reset its roam target too so it doesn't walk back
+            // Persistent Enemy Teleportation
             EnemyAI ai = other.GetComponent<EnemyAI>();
-            if (ai != null)
+            if (ai != null && EnemyManager.Instance != null)
             {
-                ai.PickNewRoamTarget();
+                EnemyManager.Instance.TeleportEnemy(ai);
             }
         }
     }
@@ -68,13 +83,15 @@ public class Wormhole : MonoBehaviour
         // If scene count is less, adjust logic.
         int sceneCount = SceneManager.sceneCountInBuildSettings;
 
-        for (int i = 1; i < sceneCount; i++) // Start at 1 to skip Bootstrap if needed, or include it? 
-        // User asked for 4 maps. Bootstrap is 0. Maps are 1,2,3,4.
-        // We only want to jump to Maps (1-4).
+        for (int i = 0; i < sceneCount; i++)
         {
-            // Don't jump to current scene (unless there's only 1 map?)
-            // Also explicitly EXCLUDE index 0 (Bootstrap) to be safe
-            if (i != currentSceneIndex && i != 0)
+            string path = SceneUtility.GetScenePathByBuildIndex(i);
+            int sceneNameStart = path.LastIndexOf('/') + 1;
+            int sceneNameEnd = path.LastIndexOf('.');
+            string sceneName = path.Substring(sceneNameStart, sceneNameEnd - sceneNameStart);
+
+            // Only allow scenes that start with "Map" (Map1, Map2, etc.)
+            if (sceneName.StartsWith("Map") && i != currentSceneIndex)
             {
                 availableIndices.Add(i);
             }
