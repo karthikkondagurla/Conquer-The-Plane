@@ -7,8 +7,8 @@ public class PlayerHealth : MonoBehaviour
     public float currentHealth;
     
     // Regen
-    public float regenRate = 5f; // HP per second
-    public float damageCooldown = 2.0f; // Seconds before regen starts
+    public float regenRate = 2f; // HP per second (slow heal)
+    public float damageCooldown = 3.0f; // Seconds before regen starts
     private float lastDamageTime;
 
     public event Action<float> OnHealthChanged;
@@ -18,6 +18,14 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
+        // Apply difficulty settings
+        if (DifficultyConfig.Instance != null)
+        {
+            maxHealth = DifficultyConfig.Instance.PlayerMaxHealth;
+            regenRate = DifficultyConfig.Instance.RegenRate;
+            damageCooldown = DifficultyConfig.Instance.RegenCooldown;
+        }
+
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
     }
@@ -42,8 +50,9 @@ public class PlayerHealth : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            float dps = DifficultyConfig.Instance != null ? DifficultyConfig.Instance.DamagePerSecond : 30f;
             Debug.Log($"Player colliding with Enemy: {collision.gameObject.name}"); 
-            TakeDamage(10f * Time.deltaTime); // Continuous damage
+            TakeDamage(dps * Time.deltaTime); // Fast continuous damage
         }
     }
 
@@ -54,7 +63,8 @@ public class PlayerHealth : MonoBehaviour
 
         if (other.CompareTag("Enemy"))
         {
-            TakeDamage(10f * Time.deltaTime);
+            float dps = DifficultyConfig.Instance != null ? DifficultyConfig.Instance.DamagePerSecond : 30f;
+            TakeDamage(dps * Time.deltaTime);
         }
     }
 

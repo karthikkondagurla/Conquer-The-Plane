@@ -85,7 +85,7 @@ public class LoadingUI : MonoBehaviour
         Text titleText = titleObj.AddComponent<Text>();
         titleText.text = "PAUSED";
         titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        titleText.fontSize = 56;
+        titleText.fontSize = 72;
         titleText.fontStyle = FontStyle.Bold;
         titleText.color = new Color(0f, 0.9f, 1f, 0.8f); // Cyan
         titleText.alignment = TextAnchor.MiddleCenter;
@@ -93,8 +93,8 @@ public class LoadingUI : MonoBehaviour
         titleRect.anchorMin = new Vector2(0.5f, 0.5f);
         titleRect.anchorMax = new Vector2(0.5f, 0.5f);
         titleRect.pivot = new Vector2(0.5f, 0.5f);
-        titleRect.anchoredPosition = new Vector2(0, 130);
-        titleRect.sizeDelta = new Vector2(400, 70);
+        titleRect.anchoredPosition = new Vector2(0, 160);
+        titleRect.sizeDelta = new Vector2(500, 90);
 
         // Accent line
         GameObject lineObj = new GameObject("AccentLine");
@@ -105,18 +105,18 @@ public class LoadingUI : MonoBehaviour
         lineRect.anchorMin = new Vector2(0.3f, 0.5f);
         lineRect.anchorMax = new Vector2(0.7f, 0.5f);
         lineRect.pivot = new Vector2(0.5f, 0.5f);
-        lineRect.anchoredPosition = new Vector2(0, 90);
+        lineRect.anchoredPosition = new Vector2(0, 110);
         lineRect.sizeDelta = new Vector2(0, 2);
 
         PauseMenu pauseMenu = gameObject.AddComponent<PauseMenu>();
         pauseMenu.Setup(panelObj);
 
         // Styled buttons
-        CreatePauseButton("ResumeButton", "RESUME", 40, panelObj.transform, () => pauseMenu.Resume(),
+        CreatePauseButton("ResumeButton", "RESUME", 50, panelObj.transform, () => pauseMenu.Resume(),
             new Color(0f, 0.9f, 1f, 0.7f), new Color(0f, 0.9f, 1f)); // Cyan
         CreatePauseButton("NewGameButton", "NEW GAME", -30, panelObj.transform, () => pauseMenu.RestartGame(),
             new Color(1f, 0.85f, 0.2f, 0.7f), new Color(1f, 0.85f, 0.2f)); // Gold
-        CreatePauseButton("QuitButton", "QUIT", -100, panelObj.transform, () => pauseMenu.QuitGame(),
+        CreatePauseButton("QuitButton", "QUIT", -110, panelObj.transform, () => pauseMenu.QuitGame(),
             new Color(1f, 0.3f, 0.3f, 0.6f), new Color(1f, 0.4f, 0.4f)); // Red
     }
 
@@ -138,7 +138,7 @@ public class LoadingUI : MonoBehaviour
         btn.onClick.AddListener(action);
 
         RectTransform rect = buttonObj.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(280, 50);
+        rect.sizeDelta = new Vector2(380, 60);
         rect.anchoredPosition = new Vector2(0, yOffset);
 
         // Inner dark fill
@@ -158,7 +158,7 @@ public class LoadingUI : MonoBehaviour
         txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         txt.alignment = TextAnchor.MiddleCenter;
         txt.color = textColor;
-        txt.fontSize = 22;
+        txt.fontSize = 28;
         txt.fontStyle = FontStyle.Bold;
         
         RectTransform textRect = textObj.GetComponent<RectTransform>();

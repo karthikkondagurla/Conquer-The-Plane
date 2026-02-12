@@ -79,7 +79,7 @@ public class GameOverUI : MonoBehaviour
         Text wastedText = wastedGO.AddComponent<Text>();
         wastedText.text = "WASTED";
         wastedText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        wastedText.fontSize = 100;
+        wastedText.fontSize = 130;
         wastedText.fontStyle = FontStyle.Bold;
         wastedText.color = new Color(1f, 0.12f, 0.12f);
         wastedText.alignment = TextAnchor.MiddleCenter;
@@ -88,7 +88,7 @@ public class GameOverUI : MonoBehaviour
         wastedRect.anchorMax = new Vector2(0.5f, 0.5f);
         wastedRect.pivot = new Vector2(0.5f, 0.5f);
         wastedRect.anchoredPosition = new Vector2(0, 55);
-        wastedRect.sizeDelta = new Vector2(800, 130);
+        wastedRect.sizeDelta = new Vector2(1000, 160);
 
         // Subtitle
         GameObject subGO = new GameObject("SubText");
@@ -96,7 +96,7 @@ public class GameOverUI : MonoBehaviour
         Text subText = subGO.AddComponent<Text>();
         subText.text = "The plane remains unconquered.";
         subText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        subText.fontSize = 20;
+        subText.fontSize = 28;
         subText.fontStyle = FontStyle.Italic;
         subText.color = new Color(0.7f, 0.3f, 0.3f);
         subText.alignment = TextAnchor.MiddleCenter;
@@ -105,7 +105,7 @@ public class GameOverUI : MonoBehaviour
         subRect.anchorMax = new Vector2(0.5f, 0.5f);
         subRect.pivot = new Vector2(0.5f, 0.5f);
         subRect.anchoredPosition = new Vector2(0, -15);
-        subRect.sizeDelta = new Vector2(600, 35);
+        subRect.sizeDelta = new Vector2(700, 45);
 
         // Red accent line below subtitle
         GameObject bottomLine = new GameObject("BottomLine");
@@ -135,7 +135,7 @@ public class GameOverUI : MonoBehaviour
         buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
         buttonRect.pivot = new Vector2(0.5f, 0.5f);
         buttonRect.anchoredPosition = new Vector2(0, -90);
-        buttonRect.sizeDelta = new Vector2(220, 50);
+        buttonRect.sizeDelta = new Vector2(300, 60);
 
         // Inner dark fill
         GameObject innerBG = new GameObject("InnerBG");
@@ -153,7 +153,7 @@ public class GameOverUI : MonoBehaviour
         Text btnText = buttonTextGO.AddComponent<Text>();
         btnText.text = "TRY AGAIN";
         btnText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        btnText.fontSize = 22;
+        btnText.fontSize = 28;
         btnText.fontStyle = FontStyle.Bold;
         btnText.color = new Color(1f, 0.4f, 0.4f);
         btnText.alignment = TextAnchor.MiddleCenter;

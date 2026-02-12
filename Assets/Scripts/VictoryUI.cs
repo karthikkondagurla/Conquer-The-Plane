@@ -69,7 +69,7 @@ public class VictoryUI : MonoBehaviour
         Text titleText = titleGO.AddComponent<Text>();
         titleText.text = "YOU CONQUERED";
         titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        titleText.fontSize = 72;
+        titleText.fontSize = 96;
         titleText.fontStyle = FontStyle.Bold;
         titleText.color = new Color(0.2f, 1f, 0.4f);
         titleText.alignment = TextAnchor.MiddleCenter;
@@ -78,7 +78,7 @@ public class VictoryUI : MonoBehaviour
         titleRect.anchorMax = new Vector2(0.5f, 0.5f);
         titleRect.pivot = new Vector2(0.5f, 0.5f);
         titleRect.anchoredPosition = new Vector2(0, 90);
-        titleRect.sizeDelta = new Vector2(900, 100);
+        titleRect.sizeDelta = new Vector2(1100, 130);
 
         // "THE PLANE!" subtitle
         GameObject subGO = new GameObject("SubtitleText");
@@ -86,7 +86,7 @@ public class VictoryUI : MonoBehaviour
         Text subText = subGO.AddComponent<Text>();
         subText.text = "THE PLANE!";
         subText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        subText.fontSize = 52;
+        subText.fontSize = 68;
         subText.fontStyle = FontStyle.Bold;
         subText.color = new Color(1f, 0.85f, 0.2f);
         subText.alignment = TextAnchor.MiddleCenter;
@@ -95,7 +95,7 @@ public class VictoryUI : MonoBehaviour
         subRect.anchorMax = new Vector2(0.5f, 0.5f);
         subRect.pivot = new Vector2(0.5f, 0.5f);
         subRect.anchoredPosition = new Vector2(0, 20);
-        subRect.sizeDelta = new Vector2(600, 70);
+        subRect.sizeDelta = new Vector2(750, 90);
 
         // Description
         GameObject descGO = new GameObject("DescText");
@@ -103,7 +103,7 @@ public class VictoryUI : MonoBehaviour
         Text descText = descGO.AddComponent<Text>();
         descText.text = "The spike held for 60 seconds. Victory is yours.";
         descText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        descText.fontSize = 20;
+        descText.fontSize = 28;
         descText.color = new Color(0.6f, 0.9f, 0.7f);
         descText.alignment = TextAnchor.MiddleCenter;
         RectTransform descRect = descGO.GetComponent<RectTransform>();
@@ -111,7 +111,7 @@ public class VictoryUI : MonoBehaviour
         descRect.anchorMax = new Vector2(0.5f, 0.5f);
         descRect.pivot = new Vector2(0.5f, 0.5f);
         descRect.anchoredPosition = new Vector2(0, -35);
-        descRect.sizeDelta = new Vector2(600, 35);
+        descRect.sizeDelta = new Vector2(750, 45);
 
         // Bottom accent line
         CreateAccentLine(victoryPanel.transform, -60, new Color(0.2f, 1f, 0.4f, 0.6f));
@@ -132,7 +132,7 @@ public class VictoryUI : MonoBehaviour
         btnRect.anchorMax = new Vector2(0.5f, 0.5f);
         btnRect.pivot = new Vector2(0.5f, 0.5f);
         btnRect.anchoredPosition = new Vector2(0, -110);
-        btnRect.sizeDelta = new Vector2(240, 50);
+        btnRect.sizeDelta = new Vector2(320, 60);
 
         // Inner dark fill
         GameObject innerBG = new GameObject("InnerBG");
@@ -149,7 +149,7 @@ public class VictoryUI : MonoBehaviour
         Text btnText = btnTextGO.AddComponent<Text>();
         btnText.text = "PLAY AGAIN";
         btnText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        btnText.fontSize = 22;
+        btnText.fontSize = 28;
         btnText.fontStyle = FontStyle.Bold;
         btnText.color = new Color(0.2f, 1f, 0.4f);
         btnText.alignment = TextAnchor.MiddleCenter;

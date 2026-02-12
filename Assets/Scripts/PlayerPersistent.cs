@@ -10,6 +10,7 @@ public class PlayerPersistent : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            EnsureSkills();
         }
         else
         {
@@ -18,5 +19,19 @@ public class PlayerPersistent : MonoBehaviour
         
         // Ensure frame rate cap as requested
         Application.targetFrameRate = 30;
+    }
+
+    /// <summary>
+    /// Ensures all player skills are attached at runtime.
+    /// This guarantees skills work even on scenes that weren't regenerated.
+    /// </summary>
+    private void EnsureSkills()
+    {
+        if (GetComponent<PlayerHealth>() == null) gameObject.AddComponent<PlayerHealth>();
+        if (GetComponent<SpikeSkill>() == null) gameObject.AddComponent<SpikeSkill>();
+        if (GetComponent<ShockwaveSkill>() == null) gameObject.AddComponent<ShockwaveSkill>();
+        if (GetComponent<DashStrikeSkill>() == null) gameObject.AddComponent<DashStrikeSkill>();
+        if (GetComponent<EnergyBoltSkill>() == null) gameObject.AddComponent<EnergyBoltSkill>();
+        if (GetComponent<BallMovement>() == null) gameObject.AddComponent<BallMovement>();
     }
 }

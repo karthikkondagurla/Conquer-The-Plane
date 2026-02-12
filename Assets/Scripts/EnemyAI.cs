@@ -11,6 +11,13 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
+        // Apply difficulty settings
+        if (DifficultyConfig.Instance != null)
+        {
+            moveSpeed = DifficultyConfig.Instance.EnemySpeed;
+            chaseDistance = DifficultyConfig.Instance.EnemyChaseDistance;
+        }
+
         // Find the player
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)

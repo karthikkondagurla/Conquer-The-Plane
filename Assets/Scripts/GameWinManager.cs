@@ -16,7 +16,10 @@ public class GameWinManager : MonoBehaviour
     public int SpikeMapID { get; private set; } = 0;
 
     private SpikeTrap activeVictorySpike = null;
-    private const float VICTORY_TIME = 60f;
+
+    private float VictoryTime => DifficultyConfig.Instance != null 
+        ? DifficultyConfig.Instance.VictoryTime 
+        : 60f;
 
     // Events
     public event Action<int> OnDemandingPlaneChanged;  // new mapID
@@ -90,9 +93,9 @@ public class GameWinManager : MonoBehaviour
         activeVictorySpike = spike;
         SpikeMapID = mapID;
         IsVictorySpikeActive = true;
-        CountdownRemaining = VICTORY_TIME;
+        CountdownRemaining = VictoryTime;
 
-        Debug.Log($"⚡ VICTORY SPIKE activated on Map {mapID}! Defend for {VICTORY_TIME}s!");
+        Debug.Log($"⚡ VICTORY SPIKE activated on Map {mapID}! Defend for {VictoryTime}s!");
         OnSpikeActivated?.Invoke();
     }
 

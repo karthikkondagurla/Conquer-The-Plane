@@ -89,8 +89,8 @@ public class MapStatusUI : MonoBehaviour
         containerRect.anchorMin = new Vector2(0, 1);
         containerRect.anchorMax = new Vector2(0, 1);
         containerRect.pivot = new Vector2(0, 1);
-        containerRect.anchoredPosition = new Vector2(12, -12);
-        containerRect.sizeDelta = new Vector2(180, 280);
+        containerRect.anchoredPosition = new Vector2(18, -18);
+        containerRect.sizeDelta = new Vector2(270, 400);
 
         // "MAPS" label
         GameObject labelGO = new GameObject("MapsLabel");
@@ -98,7 +98,7 @@ public class MapStatusUI : MonoBehaviour
         Text labelText = labelGO.AddComponent<Text>();
         labelText.text = "MAPS";
         labelText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        labelText.fontSize = 12;
+        labelText.fontSize = 18;
         labelText.fontStyle = FontStyle.Bold;
         labelText.color = new Color(0.5f, 0.5f, 0.6f);
         labelText.alignment = TextAnchor.MiddleLeft;
@@ -107,12 +107,12 @@ public class MapStatusUI : MonoBehaviour
         labelRect.anchorMax = new Vector2(0, 1);
         labelRect.pivot = new Vector2(0, 1);
         labelRect.anchoredPosition = new Vector2(2, 0);
-        labelRect.sizeDelta = new Vector2(60, 16);
+        labelRect.sizeDelta = new Vector2(90, 24);
 
         // Create 4 map cards
         for (int i = 1; i <= 4; i++)
         {
-            CreateMapCard(container.transform, i, 18 + (i - 1) * 43);
+            CreateMapCard(container.transform, i, 28 + (i - 1) * 62);
         }
 
         // Countdown timer text
@@ -121,7 +121,7 @@ public class MapStatusUI : MonoBehaviour
         countdownText = countdownGO.AddComponent<Text>();
         countdownText.text = "";
         countdownText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        countdownText.fontSize = 16;
+        countdownText.fontSize = 24;
         countdownText.fontStyle = FontStyle.Bold;
         countdownText.color = new Color(1f, 0.85f, 0.2f);
         countdownText.alignment = TextAnchor.MiddleCenter;
@@ -129,8 +129,8 @@ public class MapStatusUI : MonoBehaviour
         cdRect.anchorMin = new Vector2(0, 1);
         cdRect.anchorMax = new Vector2(0, 1);
         cdRect.pivot = new Vector2(0, 1);
-        cdRect.anchoredPosition = new Vector2(0, -195);
-        cdRect.sizeDelta = new Vector2(180, 22);
+        cdRect.anchoredPosition = new Vector2(0, -285);
+        cdRect.sizeDelta = new Vector2(270, 32);
 
         // Status text
         GameObject statusGO = new GameObject("StatusText");
@@ -138,7 +138,7 @@ public class MapStatusUI : MonoBehaviour
         statusText = statusGO.AddComponent<Text>();
         statusText.text = "";
         statusText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        statusText.fontSize = 13;
+        statusText.fontSize = 19;
         statusText.fontStyle = FontStyle.Bold;
         statusText.color = new Color(1f, 0.3f, 0.3f);
         statusText.alignment = TextAnchor.MiddleCenter;
@@ -146,8 +146,8 @@ public class MapStatusUI : MonoBehaviour
         stRect.anchorMin = new Vector2(0, 1);
         stRect.anchorMax = new Vector2(0, 1);
         stRect.pivot = new Vector2(0, 1);
-        stRect.anchoredPosition = new Vector2(0, -218);
-        stRect.sizeDelta = new Vector2(180, 22);
+        stRect.anchoredPosition = new Vector2(0, -320);
+        stRect.sizeDelta = new Vector2(270, 32);
     }
 
     private void CreateMapCard(Transform parent, int mapID, float yOffset)
@@ -162,7 +162,7 @@ public class MapStatusUI : MonoBehaviour
         borderRect.anchorMax = new Vector2(0, 1);
         borderRect.pivot = new Vector2(0, 1);
         borderRect.anchoredPosition = new Vector2(0, -yOffset);
-        borderRect.sizeDelta = new Vector2(180, 40);
+        borderRect.sizeDelta = new Vector2(270, 58);
 
         // Inner dark card
         GameObject cardGO = new GameObject($"MapCard_{mapID}");
@@ -180,7 +180,7 @@ public class MapStatusUI : MonoBehaviour
         Text mapNameText = nameGO.AddComponent<Text>();
         mapNameText.text = $"Map {mapID}";
         mapNameText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        mapNameText.fontSize = 14;
+        mapNameText.fontSize = 20;
         mapNameText.fontStyle = FontStyle.Bold;
         mapNameText.color = new Color(0.8f, 0.8f, 0.85f);
         mapNameText.alignment = TextAnchor.MiddleLeft;
@@ -197,7 +197,7 @@ public class MapStatusUI : MonoBehaviour
         Text countText = countGO.AddComponent<Text>();
         countText.text = "0";
         countText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        countText.fontSize = 13;
+        countText.fontSize = 19;
         countText.color = new Color(0.6f, 0.6f, 0.65f);
         countText.alignment = TextAnchor.MiddleRight;
         RectTransform countRect = countGO.GetComponent<RectTransform>();
@@ -239,7 +239,7 @@ public class MapStatusUI : MonoBehaviour
             mapCountTexts[mapID].text = $"{count} {enemyWord}";
             
             RectTransform borderRect = mapCardBorders[mapID].GetComponent<RectTransform>();
-            float yPos = 18 + i * 43;
+            float yPos = 28 + i * 62;
             borderRect.anchoredPosition = new Vector2(0, -yPos);
 
             if (mapID == demandingMapID)

@@ -81,8 +81,8 @@ public class HealthBarUI : MonoBehaviour
         containerRect.anchorMin = new Vector2(1, 1);
         containerRect.anchorMax = new Vector2(1, 1);
         containerRect.pivot = new Vector2(1, 1);
-        containerRect.anchoredPosition = new Vector2(-15, -15);
-        containerRect.sizeDelta = new Vector2(250, 45);
+        containerRect.anchoredPosition = new Vector2(-20, -20);
+        containerRect.sizeDelta = new Vector2(380, 65);
 
         // Label: "HP"
         GameObject labelGO = new GameObject("HPLabel");
@@ -90,7 +90,7 @@ public class HealthBarUI : MonoBehaviour
         healthLabel = labelGO.AddComponent<Text>();
         healthLabel.text = "HP";
         healthLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        healthLabel.fontSize = 14;
+        healthLabel.fontSize = 20;
         healthLabel.fontStyle = FontStyle.Bold;
         healthLabel.color = new Color(0f, 0.9f, 1f, 0.8f);
         healthLabel.alignment = TextAnchor.MiddleLeft;
@@ -99,7 +99,7 @@ public class HealthBarUI : MonoBehaviour
         labelRect.anchorMax = new Vector2(0, 1);
         labelRect.pivot = new Vector2(0, 1);
         labelRect.anchoredPosition = new Vector2(0, 0);
-        labelRect.sizeDelta = new Vector2(30, 18);
+        labelRect.sizeDelta = new Vector2(45, 26);
 
         // Outer border
         GameObject borderGO = new GameObject("HealthBarBorder");
@@ -110,8 +110,8 @@ public class HealthBarUI : MonoBehaviour
         borderRect.anchorMin = new Vector2(0, 0);
         borderRect.anchorMax = new Vector2(1, 1);
         borderRect.pivot = new Vector2(0.5f, 0.5f);
-        borderRect.anchoredPosition = new Vector2(0, -8);
-        borderRect.sizeDelta = new Vector2(0, -14);
+        borderRect.anchoredPosition = new Vector2(0, -10);
+        borderRect.sizeDelta = new Vector2(0, -20);
 
         // Inner dark background
         GameObject bgGO = new GameObject("HealthBarBG");
@@ -121,7 +121,7 @@ public class HealthBarUI : MonoBehaviour
         RectTransform bgRect = bgGO.GetComponent<RectTransform>();
         bgRect.anchorMin = Vector2.zero;
         bgRect.anchorMax = Vector2.one;
-        bgRect.sizeDelta = new Vector2(-3, -3);
+        bgRect.sizeDelta = new Vector2(-4, -4);
 
         // Fill bar
         GameObject fillGO = new GameObject("HealthBarFill");
@@ -133,7 +133,7 @@ public class HealthBarUI : MonoBehaviour
         fillRect.anchorMax = new Vector2(0, 1);
         fillRect.pivot = new Vector2(0, 0.5f);
         fillRect.anchoredPosition = new Vector2(2, 0);
-        fillRect.sizeDelta = new Vector2(242, -4);
+        fillRect.sizeDelta = new Vector2(370, -6);
 
         // Percentage text overlay
         GameObject textGO = new GameObject("HealthText");
@@ -141,7 +141,7 @@ public class HealthBarUI : MonoBehaviour
         healthText = textGO.AddComponent<Text>();
         healthText.text = "100%";
         healthText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        healthText.fontSize = 14;
+        healthText.fontSize = 20;
         healthText.fontStyle = FontStyle.Bold;
         healthText.color = Color.white;
         healthText.alignment = TextAnchor.MiddleCenter;

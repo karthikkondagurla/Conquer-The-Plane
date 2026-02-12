@@ -7,7 +7,10 @@ public class EnemyManager : MonoBehaviour
     public static EnemyManager Instance { get; private set; }
 
     private List<EnemyAI> persistentEnemies = new List<EnemyAI>();
-    private const int TOTAL_ENEMIES = 9;
+    
+    private int TotalEnemies => DifficultyConfig.Instance != null 
+        ? DifficultyConfig.Instance.EnemyCount 
+        : 9;
 
     private void Awake()
     {
@@ -43,7 +46,7 @@ public class EnemyManager : MonoBehaviour
     private void SpawnPersistentEnemies()
     {
         // Create 4 enemies
-        for (int i = 0; i < TOTAL_ENEMIES; i++)
+        for (int i = 0; i < TotalEnemies; i++)
         {
             GameObject enemyGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
             enemyGO.name = "PersistentEnemy_" + i;

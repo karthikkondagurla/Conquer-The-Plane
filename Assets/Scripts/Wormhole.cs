@@ -34,7 +34,9 @@ public class Wormhole : MonoBehaviour
     {
         while (true)
         {
-            float waitTime = Random.Range(1f, 5f);
+            float minWait = DifficultyConfig.Instance != null ? DifficultyConfig.Instance.WormholeRelocateMin : 1f;
+            float maxWait = DifficultyConfig.Instance != null ? DifficultyConfig.Instance.WormholeRelocateMax : 5f;
+            float waitTime = Random.Range(minWait, maxWait);
             yield return new WaitForSeconds(waitTime);
 
             // Relocate to a random position on the floor

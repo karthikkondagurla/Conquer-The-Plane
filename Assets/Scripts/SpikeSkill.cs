@@ -10,6 +10,15 @@ public class SpikeSkill : MonoBehaviour
     private float lastUseTime = -99f;
     private int activeSpikes = 0;
 
+    void Start()
+    {
+        if (DifficultyConfig.Instance != null)
+        {
+            cooldown = DifficultyConfig.Instance.SpikeCooldown;
+            maxSpikes = DifficultyConfig.Instance.MaxSpikes;
+        }
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.K))

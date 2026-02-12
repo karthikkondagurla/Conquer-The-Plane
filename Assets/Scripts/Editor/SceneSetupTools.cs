@@ -115,6 +115,13 @@ public class SceneSetupTools : EditorWindow
         // 6. Create Victory UI
         new GameObject("VictoryUI").AddComponent<VictoryUI>();
 
+        // 7. Create Skill Cooldown UI
+        new GameObject("SkillCooldownUI").AddComponent<SkillCooldownUI>();
+
+        // 8. Create Difficulty Config (defaults to Normal if not already set from MainMenu)
+        if (DifficultyConfig.Instance == null)
+            new GameObject("DifficultyConfig").AddComponent<DifficultyConfig>();
+
         // 5. Create Ranking UI
         // CreateRankingUI(); // Removed by user request
 
@@ -138,6 +145,9 @@ public class SceneSetupTools : EditorWindow
         player.AddComponent<PlayerPersistent>();
         player.AddComponent<PlayerHealth>(); // Add Health Component
         player.AddComponent<SpikeSkill>();   // Add Spike Skill (K to plant crystals)
+        player.AddComponent<ShockwaveSkill>();  // Add Shockwave (Q to AoE push)
+        player.AddComponent<DashStrikeSkill>(); // Add Dash Strike (Shift to dash)
+        player.AddComponent<EnergyBoltSkill>(); // Add Energy Bolt (F to fire projectile)
         
         // Add BallMovement
         player.AddComponent<BallMovement>();
@@ -277,8 +287,14 @@ public class SceneSetupTools : EditorWindow
             spawn.transform.position = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
         }
 
-        // === Wormholes (3-5), with glass shader ===
-        int wormholeCount = Random.Range(3, 6);
+        // === Wormholes, with glass shader ===
+        int whMin = 3, whMax = 6;
+        if (DifficultyConfig.Instance != null)
+        {
+            whMin = DifficultyConfig.Instance.WormholesPerMapMin;
+            whMax = DifficultyConfig.Instance.WormholesPerMapMax + 1; // Random.Range max is exclusive
+        }
+        int wormholeCount = Random.Range(whMin, whMax);
         for (int k = 0; k < wormholeCount; k++)
         {
             Vector3 pos = new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f));
