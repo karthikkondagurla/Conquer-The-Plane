@@ -155,9 +155,37 @@ public class SceneSetupTools : EditorWindow
             }
         }
 
+        // Set scale to 9 as requested (down from huge import scale)
+        player.transform.localScale = new Vector3(9f, 9f, 9f);
+
         // Ensure we have a Collider
-        Collider col = player.GetComponent<Collider>();
-        if (col == null) col = player.AddComponent<SphereCollider>();
+        SphereCollider col = player.GetComponent<SphereCollider>();
+        if (col == null) 
+        {
+            col = player.AddComponent<SphereCollider>();
+        }
+        
+        // Calculate bounds of the visual mesh to set collider size accurately
+        Renderer[] renderers = player.GetComponentsInChildren<Renderer>();
+        if (renderers.Length > 0)
+        {
+            Bounds bounds = renderers[0].bounds;
+            foreach (Renderer r in renderers)
+            {
+                bounds.Encapsulate(r.bounds);
+            }
+            
+            // Radius should be the largest extent (half-size)
+            // Use local scale adjustment because radius is in local space
+            float maxExtent = Mathf.Max(bounds.extents.x, Mathf.Max(bounds.extents.y, bounds.extents.z));
+            col.radius = maxExtent / 9f; // We scaled the parent to 9, so local radius needs to be relative to that
+            col.center = (bounds.center - player.transform.position) / 9f;
+        }
+        else
+        {
+            // Fallback if no renderers
+            col.radius = 0.5f; 
+        }
 
         // Add Physics Material for rolling (friction)
         PhysicsMaterial ballMat = new PhysicsMaterial();
