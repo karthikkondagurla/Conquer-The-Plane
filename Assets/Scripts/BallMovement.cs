@@ -3,7 +3,7 @@ using UnityEngine;
 public class BallMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 50f;
+    public float moveSpeed = 12f; // Reduced for Velocity-based movement
     public float jumpForce = 10f;
 
     [Header("Visuals")]
@@ -120,13 +120,22 @@ public class BallMovement : MonoBehaviour
 
         if (movement.magnitude >= 0.1f)
         {
-            rb.AddForce(movement * moveSpeed, ForceMode.Force);
+            // Direct Velocity Control for "Walking" feel (No sliding)
+            Vector3 targetVelocity = movement * moveSpeed;
+            targetVelocity.y = rb.linearVelocity.y; // Preserve gravity
+            rb.linearVelocity = targetVelocity;
 
             if (visualModel != null)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(movement);
                 visualModel.rotation = Quaternion.Lerp(visualModel.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime);
             }
+        }
+        else
+        {
+            // Stop immediately when no input
+            Vector3 stopVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            rb.linearVelocity = stopVelocity;
         }
     }
 
