@@ -45,48 +45,66 @@ public class EnemyManager : MonoBehaviour
 
     private void SpawnPersistentEnemies()
     {
+        // Try to load the Zombie prefab from Resources
+        GameObject zombiePrefab = Resources.Load<GameObject>("ZombieEnemy");
+        if (zombiePrefab == null)
+        {
+            Debug.LogWarning("ZombieEnemy prefab not found in Resources. Falling back to primitive cube.");
+        }
+
         // Create 4 enemies
         for (int i = 0; i < TotalEnemies; i++)
         {
-            GameObject enemyGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject enemyGO;
+            
+            if (zombiePrefab != null)
+            {
+                enemyGO = Instantiate(zombiePrefab);
+            }
+            else
+            {
+                // Fallback: Create Primitive
+                enemyGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                
+                // Visuals - URP compatible (Fallback)
+                Renderer r = enemyGO.GetComponent<Renderer>();
+                Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
+                if (litShader == null) litShader = Shader.Find("Standard");
+                Material m = new Material(litShader);
+                m.SetColor("_BaseColor", Color.black);
+                m.color = Color.black;
+                r.sharedMaterial = m;
+                
+                 // Physics (Fallback)
+                Rigidbody rb = enemyGO.AddComponent<Rigidbody>();
+                rb.constraints = RigidbodyConstraints.FreezeRotation;
+                rb.isKinematic = false; 
+                rb.useGravity = true;
+                
+                BoxCollider enemyCollider = enemyGO.GetComponent<BoxCollider>();
+                if (enemyCollider != null) enemyCollider.isTrigger = false;
+                
+                enemyGO.AddComponent<EnemyAI>();
+            }
+
             enemyGO.name = "PersistentEnemy_" + i;
             enemyGO.tag = "Enemy";
             DontDestroyOnLoad(enemyGO);
 
-            // Visuals - URP compatible
-            Renderer r = enemyGO.GetComponent<Renderer>();
-            Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
-            if (litShader == null) litShader = Shader.Find("Standard");
-            Material m = new Material(litShader);
-            m.SetColor("_BaseColor", Color.black);
-            m.color = Color.black;
-            r.sharedMaterial = m;
-
-            // Physics
-            Rigidbody rb = enemyGO.AddComponent<Rigidbody>();
-            rb.constraints = RigidbodyConstraints.FreezeRotation;
-            rb.isKinematic = false; // Ensure it's not kinematic
-            rb.useGravity = true;
+            // AI Setup
+            EnemyAI ai = enemyGO.GetComponent<EnemyAI>();
+            if (ai == null) ai = enemyGO.AddComponent<EnemyAI>();
             
-            // Ensure the collider exists and is not a trigger
-            BoxCollider enemyCollider = enemyGO.GetComponent<BoxCollider>();
-            if (enemyCollider != null)
-            {
-                enemyCollider.isTrigger = false; // Must be false for OnCollisionStay
-            }
-
-            // AI
-            EnemyAI ai = enemyGO.AddComponent<EnemyAI>();
             // Assign random map (1-4)
             ai.currentMapID = Random.Range(1, 5); 
             
             // Random position in that "virtual" map space
-            // Note: Since all maps use the same coordinate space, this is safe.
-            enemyGO.transform.position = new Vector3(Random.Range(-10f, 10f), 0.5f, Random.Range(-10f, 10f));
+            // Random position in that "virtual" map space
+            enemyGO.transform.position = new Vector3(Random.Range(-10f, 10f), 0.0f, Random.Range(-10f, 10f));
 
             persistentEnemies.Add(ai);
             
-            // Initially hide them (we start in Bootstrap/MainMenu usually)
+            // Initially hide them
             enemyGO.SetActive(false);
         }
     }

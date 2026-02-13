@@ -54,7 +54,7 @@ public class DifficultyConfig : MonoBehaviour
         {
             case Difficulty.Easy:
                 EnemyCount = 8;
-                EnemySpeed = 2.0f;
+                EnemySpeed = 0.8f;
                 EnemyChaseDistance = 7f;
                 PlayerMaxHealth = 150f;
                 RegenRate = 8f;

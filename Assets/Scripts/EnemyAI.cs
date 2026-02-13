@@ -2,15 +2,25 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    public float moveSpeed = 3.0f;
-    public float chaseDistance = 10.0f;
+    public float moveSpeed = 1.0f;
+    public float chaseDistance = 8.0f;
     public int currentMapID = 0; // Managed by EnemyManager
     
     private Transform playerTarget;
     private Vector3 roamTarget;
 
+    private Animator animator;
+    private Rigidbody rb;
+
     void Start()
     {
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+        
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.isKinematic = false; // Ensure we interact with physics
+
         // Apply difficulty settings
         if (DifficultyConfig.Instance != null)
         {
@@ -29,9 +39,7 @@ public class EnemyAI : MonoBehaviour
         PickNewRoamTarget();
     }
 
-    // OnDestroy logic removed as Manager handles lifecycle
-
-    void Update()
+    void FixedUpdate()
     {
         // Ensure we have a player target
         if (playerTarget == null)
@@ -42,38 +50,77 @@ public class EnemyAI : MonoBehaviour
         }
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+        bool isMoving = false;
 
         if (distanceToPlayer < chaseDistance)
         {
             // CHASE STATE
             ChasePlayer();
+            isMoving = true;
         }
         else
         {
             // ROAM STATE
             Roam();
+            // check if we are still far from target
+            if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(roamTarget.x, 0, roamTarget.z)) > 1.0f)
+            {
+                isMoving = true;
+            }
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool("IsMoving", isMoving);
+            
+            // Sync animation speed with movement speed
+            // Assuming default animation matches a speed of ~3.0f, scale accordingly.
+            // But ensure it doesn't get too slow (min 0.5f) or fast.
+            if (isMoving)
+            {
+                 float targetAnimSpeed = moveSpeed / 3.0f; 
+                 // Clamp to reasonable values so it doesn't look like time stop
+                 animator.speed = Mathf.Clamp(targetAnimSpeed, 0.4f, 2.0f);
+            }
+            else
+            {
+                 animator.speed = 1.0f; // Idle speed normal
+            }
+
+            if (distanceToPlayer < 2.0f)
+            {
+                 animator.SetBool("IsAttacking", true);
+                 animator.speed = 1.0f; // Attack at normal speed
+            }
+            else
+            {
+                 animator.SetBool("IsAttacking", false);
+            }
         }
     }
 
     void ChasePlayer()
     {
-        // Rotate to look at player
-        transform.LookAt(playerTarget);
-        // Move forward
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
+        Vector3 lookPos = playerTarget.position;
+        lookPos.y = transform.position.y;
+        transform.LookAt(lookPos);
+        
+        // rb.MovePosition for physics-based movement
+        Vector3 nextPos = transform.position + transform.forward * moveSpeed * Time.fixedDeltaTime;
+        rb.MovePosition(nextPos);
     }
 
     void Roam()
     {
-        // Move towards roam target
-        transform.LookAt(roamTarget);
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
+        Vector3 lookPos = roamTarget;
+        lookPos.y = transform.position.y;
+        transform.LookAt(lookPos);
+        
+        Vector3 nextPos = transform.position + transform.forward * moveSpeed * Time.fixedDeltaTime;
+        rb.MovePosition(nextPos);
 
-        // Check if reached destination
-        if (Vector3.Distance(transform.position, roamTarget) < 1.0f)
+        if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(roamTarget.x, 0, roamTarget.z)) < 1.0f)
         {
-            // Wait a bit or pick new one immediately? 
-            // Simple: Pick new one
             PickNewRoamTarget();
         }
     }
