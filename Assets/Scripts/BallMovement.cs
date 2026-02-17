@@ -29,6 +29,9 @@ public class BallMovement : MonoBehaviour
 
     void Start()
     {
+        moveSpeed = 12f; // Force correct speed
+        Debug.Log($"Initial Move Speed: {moveSpeed}");
+
         rb = GetComponent<Rigidbody>();
         
         // Physics Setup
@@ -75,6 +78,8 @@ public class BallMovement : MonoBehaviour
             visualModel.localScale = Vector3.one * robotScale;
             anim = visualModel.GetComponent<Animator>();
             if (anim == null) anim = visualModel.GetComponentInChildren<Animator>();
+            
+            if (anim != null) anim.applyRootMotion = false; // Disable root motion
         }
     }
 
@@ -109,6 +114,7 @@ public class BallMovement : MonoBehaviour
     {
         Move();
         CheckGround();
+        Debug.Log($"Current Speed: {rb.linearVelocity.magnitude}");
     }
 
     void Move()
