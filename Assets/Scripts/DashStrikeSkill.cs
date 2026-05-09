@@ -11,7 +11,7 @@ public class DashStrikeSkill : MonoBehaviour
     public float hitRadius = 1.5f;
 
     private float lastUseTime = -99f;
-    private bool isDashing = false;
+    public bool isDashing { get; private set; } = false;
     private Rigidbody rb;
 
     // Public property for UI
@@ -72,9 +72,9 @@ public class DashStrikeSkill : MonoBehaviour
             }
         }
 
-        // Apply instant dash force
+        // Apply instant dash force (VelocityChange ignores mass, ensuring consistent dash speed)
         rb.linearVelocity = Vector3.zero; // Reset current velocity
-        rb.AddForce(dashDir * dashForce, ForceMode.Impulse);
+        rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
 
         // Visual trail effect
         GameObject trail = CreateDashTrail();

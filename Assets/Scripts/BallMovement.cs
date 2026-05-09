@@ -3,8 +3,10 @@ using UnityEngine;
 public class BallMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 12f; // Reduced for Velocity-based movement
+    public float moveForce = 35f; // Reduced for a heavier, slower start
+    public float maxSpeed = 7f;   // Reduced top speed
     public float jumpForce = 10f;
+    public float decelerationMultiplier = 2.5f; // Increased braking for a heavier feel
 
     [Header("Visuals")]
     public Transform visualModel;
@@ -29,14 +31,12 @@ public class BallMovement : MonoBehaviour
 
     void Start()
     {
-        moveSpeed = 12f; // Force correct speed
-        Debug.Log($"Initial Move Speed: {moveSpeed}");
-
         rb = GetComponent<Rigidbody>();
         
         // Physics Setup
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
-        rb.linearDamping = 5f;
+        rb.mass = 3f; // Added physical weight so it pushes objects harder
+        rb.constraints = RigidbodyConstraints.FreezeRotation; // Keep frozen so visual model doesn't tumble
+        rb.linearDamping = 1f; // Reduced damping so AddForce works better
         rb.angularDamping = 0.05f;
 
         SetupCharacterVisuals();
@@ -47,40 +47,104 @@ public class BallMovement : MonoBehaviour
         MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
         if (meshRenderer != null) meshRenderer.enabled = false;
 
+        Transform oldRobot = transform.Find("robotSphere");
+        if (oldRobot != null)
+        {
+            if (visualModel == oldRobot) visualModel = null;
+            if (Application.isPlaying) Destroy(oldRobot.gameObject);
+            else DestroyImmediate(oldRobot.gameObject);
+        }
+
         if (visualModel == null)
         {
-            Transform existing = transform.Find("robotSphere");
+            Transform existing = transform.Find("DefaultSphere");
             if (existing != null)
             {
                 visualModel = existing;
             }
             else
             {
-                GameObject robotPrefab = Resources.Load<GameObject>("robotSphere");
-                if (robotPrefab != null)
-                {
-                    GameObject robot = Instantiate(robotPrefab, transform);
-                    robot.name = "robotSphere";
-                    robot.transform.localPosition = new Vector3(0, -0.5f, 0); 
-                    robot.transform.localScale = Vector3.one * robotScale;
-                    robot.transform.localRotation = Quaternion.identity;
-                    visualModel = robot.transform;
-                }
-                else
-                {
-                    Debug.LogError("Robot Sphere prefab not found in Resources!");
-                }
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.name = "DefaultSphere";
+                
+                // Remove collider since parent handles collisions
+                if (Application.isPlaying) Destroy(sphere.GetComponent<Collider>());
+                else DestroyImmediate(sphere.GetComponent<Collider>());
+                
+                sphere.transform.SetParent(transform);
+                sphere.transform.localPosition = Vector3.zero; 
+                sphere.transform.localScale = Vector3.one * robotScale;
+                sphere.transform.localRotation = Quaternion.identity;
+                visualModel = sphere.transform;
+
+                // Apply the player sphere material
+                ApplySphereMaterial(sphere);
             }
         }
 
         if (visualModel != null)
         {
-            visualModel.localScale = Vector3.one * robotScale;
+            float targetScale = visualModel.name == "DefaultSphere" ? 1.0f : robotScale;
+            visualModel.localScale = Vector3.one * targetScale;
+
+            // If it's the sphere, unfreeze rotation so it can physically roll.
+            // If it's the robot, freeze rotation so it stays upright.
+            bool isSphere = (visualModel.name == "DefaultSphere");
+            rb.constraints = isSphere ? RigidbodyConstraints.None : RigidbodyConstraints.FreezeRotation;
+            
             anim = visualModel.GetComponent<Animator>();
             if (anim == null) anim = visualModel.GetComponentInChildren<Animator>();
             
             if (anim != null) anim.applyRootMotion = false; // Disable root motion
         }
+    }
+
+    void ApplySphereMaterial(GameObject sphere)
+    {
+        MeshRenderer renderer = sphere.GetComponent<MeshRenderer>();
+        if (renderer == null) return;
+
+        // Build the swirling iridescent material from the custom shader
+        Shader swirlShader = Shader.Find("Custom/SwirlingSphere");
+
+        Material mat;
+        if (swirlShader != null)
+        {
+            mat = new Material(swirlShader);
+            mat.name = "SwirlingSphere_Runtime";
+
+            // Dark near-black deep teal base
+            mat.SetColor("_BaseColor",   new Color(0.02f, 0.04f, 0.06f, 1f));
+
+            // Neon teal swirl lines
+            mat.SetColor("_SwirlColorA", new Color(0.00f, 1.00f, 0.55f, 1f));
+            // Deeper blue-green swirl lines
+            mat.SetColor("_SwirlColorB", new Color(0.00f, 0.40f, 1.00f, 1f));
+
+            mat.SetFloat("_SwirlScale",      5.0f);   // density of swirls
+            mat.SetFloat("_SwirlSpeed",      0.25f);  // animation speed
+            mat.SetFloat("_SwirlWidth",      0.18f);  // line thickness
+            mat.SetFloat("_SwirlSharpness",  9.0f);   // how crisp the lines are
+            mat.SetFloat("_EmissionPower",   3.5f);   // glow brightness
+            mat.SetFloat("_IridPower",       2.5f);   // angle of iridescence falloff
+            mat.SetFloat("_IridStrength",    0.9f);   // rainbow shimmer intensity
+            mat.SetFloat("_Metallic",        0.85f);
+            mat.SetFloat("_Smoothness",      0.92f);
+        }
+        else
+        {
+            // Fallback: plain deep metallic teal if shader not found yet
+            Debug.LogWarning("Custom/SwirlingSphere shader not found. Using fallback material.");
+            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            mat.name = "SwirlingSphere_Fallback";
+            mat.SetColor("_BaseColor", new Color(0.02f, 0.08f, 0.15f, 1f));
+            mat.SetFloat("_Metallic",   0.9f);
+            mat.SetFloat("_Smoothness", 0.95f);
+            mat.EnableKeyword("_EMISSION");
+            mat.SetColor("_EmissionColor", new Color(0f, 0.8f, 0.6f) * 2f);
+        }
+
+        renderer.material = mat;
     }
 
     [ContextMenu("Reload Character")]
@@ -114,7 +178,6 @@ public class BallMovement : MonoBehaviour
     {
         Move();
         CheckGround();
-        Debug.Log($"Current Speed: {rb.linearVelocity.magnitude}");
     }
 
     void Move()
@@ -126,12 +189,26 @@ public class BallMovement : MonoBehaviour
 
         if (movement.magnitude >= 0.1f)
         {
-            // Direct Velocity Control for "Walking" feel (No sliding)
-            Vector3 targetVelocity = movement * moveSpeed;
-            targetVelocity.y = rb.linearVelocity.y; // Preserve gravity
-            rb.linearVelocity = targetVelocity;
+            // Apply physics force for smooth acceleration
+            rb.AddForce(movement * moveForce, ForceMode.Acceleration);
 
-            if (visualModel != null)
+            // Cap the maximum horizontal speed (unless dashing)
+            DashStrikeSkill dashSkill = GetComponent<DashStrikeSkill>();
+            bool isDashing = dashSkill != null && dashSkill.isDashing;
+
+            if (!isDashing)
+            {
+                Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                if (horizontalVelocity.magnitude > maxSpeed)
+                {
+                    Vector3 cappedVelocity = horizontalVelocity.normalized * maxSpeed;
+                    rb.linearVelocity = new Vector3(cappedVelocity.x, rb.linearVelocity.y, cappedVelocity.z);
+                }
+            }
+
+            // Only force look rotation if it is NOT the sphere. 
+            // The sphere should roll physically via friction.
+            if (visualModel != null && visualModel.name != "DefaultSphere")
             {
                 Quaternion targetRotation = Quaternion.LookRotation(movement);
                 visualModel.rotation = Quaternion.Lerp(visualModel.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime);
@@ -139,9 +216,19 @@ public class BallMovement : MonoBehaviour
         }
         else
         {
-            // Stop immediately when no input
-            Vector3 stopVelocity = new Vector3(0, rb.linearVelocity.y, 0);
-            rb.linearVelocity = stopVelocity;
+            // Smoothly decelerate when there is no input
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            
+            // Apply an opposing force to act as friction/braking
+            if (horizontalVelocity.magnitude > 0.5f)
+            {
+                rb.AddForce(-horizontalVelocity.normalized * moveForce * decelerationMultiplier, ForceMode.Acceleration);
+            }
+            else
+            {
+                // Full stop when moving very slowly to prevent drifting
+                rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            }
         }
     }
 
@@ -186,13 +273,15 @@ public class BallMovement : MonoBehaviour
     {
         if (visualModel != null)
         {
-            visualModel.localScale = Vector3.one * robotScale;
+            float targetScale = visualModel.name == "DefaultSphere" ? 1.0f : robotScale;
+            visualModel.localScale = Vector3.one * targetScale;
         }
     }
 
     void Jump()
     {
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        // Use VelocityChange so jump height remains consistent regardless of the heavier mass
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
         isGrounded = false;
     }
 
