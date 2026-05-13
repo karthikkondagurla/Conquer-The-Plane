@@ -27,6 +27,8 @@ public class AudioManager : MonoBehaviour
     private AudioSource rollSource;
     private bool isRolling = false;
 
+    private AudioClip playerHurtClip;
+
     // ────────────────────────────────────────────────
     // Sound names (used as keys)
     // ────────────────────────────────────────────────
@@ -73,6 +75,8 @@ public class AudioManager : MonoBehaviour
             {
                 gameObject.AddComponent<AudioListener>();
             }
+
+            playerHurtClip = Resources.Load<AudioClip>("freesound_community-zombie-bite-96528");
 
             BuildAudioSources();
             StartBackgroundMusic();
@@ -187,7 +191,7 @@ public class AudioManager : MonoBehaviour
             case Sound.Shockwave:     return SynthShockwave();
             case Sound.SpikePlant:    return SynthSpikePlant();
             case Sound.SpikeHitEnemy: return SynthSpikeHitEnemy();
-            case Sound.PlayerHurt:    return SynthPlayerHurt();
+            case Sound.PlayerHurt:    return playerHurtClip != null ? playerHurtClip : SynthPlayerHurt();
             case Sound.PlayerDeath:   return SynthPlayerDeath();
             case Sound.EnemyDeath:    return SynthEnemyDeath();
             case Sound.Victory:       return SynthVictory();
@@ -343,21 +347,47 @@ public class AudioManager : MonoBehaviour
     // ──────────────────────────────────
     AudioClip SynthRoll()
     {
+        // ~0.5 s loop that tiles seamlessly
         float dur = 0.5f;
         int n     = (int)(dur * SAMPLE_RATE);
         float[] d = new float[n];
+
+        // Pseudo-random state so each layer is independent
+        System.Random rng = new System.Random(42);
+
         for (int i = 0; i < n; i++)
         {
-            float t   = (float)i / SAMPLE_RATE;
-            // Low rumble: filtered noise + low sine
-            d[i] = (Noise() * 0.3f + Mathf.Sin(2f * Mathf.PI * 60f * t) * 0.2f) * 0.5f;
+            float t = (float)i / SAMPLE_RATE;
+
+            // --- Layer 1: gritty surface texture (band-passed noise) ---
+            // Simulate band-pass by mixing two sine-modulated noise samples
+            float grain = ((float)rng.NextDouble() * 2f - 1f);
+            float band  = grain * Mathf.Sin(2f * Mathf.PI * 180f * t)   // ~180 Hz carrier
+                        + grain * Mathf.Sin(2f * Mathf.PI * 320f * t);  // upper harmonic
+            band *= 0.18f;
+
+            // --- Layer 2: deep 80 Hz rumble ---
+            float rumble = Mathf.Sin(2f * Mathf.PI * 80f * t) * 0.22f;
+
+            // --- Layer 3: rhythmic 8 Hz contact bumps (sphere seam hitting floor) ---
+            // Creates a subtle periodic "thump thump" pattern
+            float bumpPhase = (t * 8f) % 1f;          // 8 bumps per second
+            float bump      = Mathf.Exp(-bumpPhase * 14f)  // sharp attack, quick decay
+                            * Mathf.Sin(2f * Mathf.PI * 55f * t) * 0.28f;
+
+            // --- Layer 4: very faint high-freq scraping noise ---
+            float scrape = ((float)rng.NextDouble() * 2f - 1f)
+                         * Mathf.Sin(2f * Mathf.PI * 900f * t) * 0.06f;
+
+            d[i] = (band + rumble + bump + scrape) * 0.55f;
         }
-        // Smooth loop boundaries
-        int fade = SAMPLE_RATE / 100;
+
+        // Crossfade loop boundaries (20 ms) for seamless looping
+        int fade = SAMPLE_RATE / 50;
         for (int i = 0; i < fade; i++)
         {
             float f = (float)i / fade;
-            d[i]       *= f;
+            d[i]         *= f;
             d[n - 1 - i] *= f;
         }
         return MakeClip("Roll", d);
