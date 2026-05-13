@@ -65,6 +65,7 @@ public class EnergyBoltSkill : MonoBehaviour
         // Create the bolt projectile
         GameObject bolt = CreateBoltObject();
         bolt.transform.position = transform.position + aimDir * 1.2f + Vector3.up * 0.3f;
+        AudioManager.Instance?.Play(AudioManager.Sound.EnergyBolt);
 
         // Add Rigidbody and launch
         Rigidbody boltRb = bolt.AddComponent<Rigidbody>();
@@ -145,6 +146,7 @@ public class EnergyBoltProjectile : MonoBehaviour
             }
 
             Debug.Log($"🔫 Energy Bolt hit enemy: {other.name}!");
+            AudioManager.Instance?.Play(AudioManager.Sound.EnergyBoltHit);
 
             // Spawn small impact flash
             StartCoroutine(ImpactFlash());

@@ -78,6 +78,12 @@ public class PlayerHealth : MonoBehaviour
             currentHealth = 0;
             Die();
         }
+        else
+        {
+            // Only play hurt sound occasionally to avoid spam
+            if (Time.time - lastDamageTime < 0.05f)
+                AudioManager.Instance?.Play(AudioManager.Sound.PlayerHurt);
+        }
 
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
     }
@@ -86,6 +92,7 @@ public class PlayerHealth : MonoBehaviour
     {
         isDead = true;
         Debug.Log("Player Died!");
+        AudioManager.Instance?.Play(AudioManager.Sound.PlayerDeath);
         OnDeath?.Invoke();
     }
 }

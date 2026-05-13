@@ -75,6 +75,7 @@ public class DashStrikeSkill : MonoBehaviour
         // Apply instant dash force (VelocityChange ignores mass, ensuring consistent dash speed)
         rb.linearVelocity = Vector3.zero; // Reset current velocity
         rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
+        AudioManager.Instance?.Play(AudioManager.Sound.Dash);
 
         // Visual trail effect
         GameObject trail = CreateDashTrail();
@@ -102,6 +103,7 @@ public class DashStrikeSkill : MonoBehaviour
                         pushDir.y = 0.3f;
                         enemyRb.AddForce(pushDir * hitPushForce, ForceMode.Impulse);
                     }
+                    AudioManager.Instance?.Play(AudioManager.Sound.DashHit);
                     Debug.Log($"🏃 Dash hit enemy: {hit.name}!");
                 }
             }

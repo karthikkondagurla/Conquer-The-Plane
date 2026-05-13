@@ -59,6 +59,7 @@ public class ShockwaveSkill : MonoBehaviour
 
         // Visual effect — expanding ring
         StartCoroutine(ShockwaveVisual());
+        AudioManager.Instance?.Play(AudioManager.Sound.Shockwave);
 
         Debug.Log($"🌊 SHOCKWAVE! Hit {enemiesHit} enemies in {radius}m radius!");
     }

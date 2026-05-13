@@ -81,6 +81,7 @@ public class SpikeSkill : MonoBehaviour
         GameWinManager.Instance.ActivateVictorySpike(trap, mapID);
 
         lastUseTime = Time.time;
+        AudioManager.Instance?.Play(AudioManager.Sound.SpikePlant);
         Debug.Log($"⚡ VICTORY SPIKE planted on Map {mapID}! Defend for 60 seconds!");
     }
 
@@ -104,6 +105,7 @@ public class SpikeSkill : MonoBehaviour
 
         activeSpikes++;
         lastUseTime = Time.time;
+        AudioManager.Instance?.Play(AudioManager.Sound.SpikePlant);
 
         StartCoroutine(TrackSpikeLifetime(spike));
 

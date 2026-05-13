@@ -158,6 +158,9 @@ public class BallMovement : MonoBehaviour
         SetupCharacterVisuals();
     }
 
+    // For landing detection
+    private bool wasGrounded = false;
+
     void Update()
     {
         // Debug: Press R to reload character
@@ -170,6 +173,11 @@ public class BallMovement : MonoBehaviour
         {
             Jump();
         }
+
+        // Landing sound
+        if (!wasGrounded && isGrounded)
+            AudioManager.Instance?.Play(AudioManager.Sound.Land);
+        wasGrounded = isGrounded;
         
         UpdateVisuals();
     }
@@ -189,6 +197,9 @@ public class BallMovement : MonoBehaviour
 
         if (movement.magnitude >= 0.1f)
         {
+            // Rolling sound
+            AudioManager.Instance?.Play(AudioManager.Sound.Roll);
+
             // Apply physics force for smooth acceleration
             rb.AddForce(movement * moveForce, ForceMode.Acceleration);
 
@@ -216,6 +227,9 @@ public class BallMovement : MonoBehaviour
         }
         else
         {
+            // Stop rolling sound when idle
+            AudioManager.Instance?.StopRoll();
+
             // Smoothly decelerate when there is no input
             Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             
@@ -283,6 +297,7 @@ public class BallMovement : MonoBehaviour
         // Use VelocityChange so jump height remains consistent regardless of the heavier mass
         rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
         isGrounded = false;
+        AudioManager.Instance?.Play(AudioManager.Sound.Jump);
     }
 
     void CheckGround()
