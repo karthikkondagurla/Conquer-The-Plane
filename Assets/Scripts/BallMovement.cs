@@ -104,9 +104,20 @@ public class BallMovement : MonoBehaviour
         MeshRenderer renderer = sphere.GetComponent<MeshRenderer>();
         if (renderer == null) return;
 
-        // Build the swirling iridescent material from the custom shader
-        Shader swirlShader = Shader.Find("Custom/SwirlingSphere");
+        // ── Priority 1: Load the pre-baked material from Resources ──────────────
+        // Resources/PlayerSphereMat.mat is guaranteed to be bundled in builds.
+        // This also keeps the shader referenced so Unity won't strip it.
+        Material loadedMat = Resources.Load<Material>("PlayerSphereMat");
+        if (loadedMat != null)
+        {
+            // Instantiate so runtime changes don't mutate the asset
+            renderer.material = new Material(loadedMat);
+            return;
+        }
 
+        // ── Priority 2: Try the custom swirl shader via Shader.Find ─────────────
+        // Only works in Editor and in builds where the shader isn't stripped.
+        Shader swirlShader = Shader.Find("Custom/SwirlingSphere");
         Material mat;
         if (swirlShader != null)
         {
@@ -115,33 +126,47 @@ public class BallMovement : MonoBehaviour
 
             // Dark near-black deep teal base
             mat.SetColor("_BaseColor",   new Color(0.02f, 0.04f, 0.06f, 1f));
-
             // Neon teal swirl lines
             mat.SetColor("_SwirlColorA", new Color(0.00f, 1.00f, 0.55f, 1f));
             // Deeper blue-green swirl lines
             mat.SetColor("_SwirlColorB", new Color(0.00f, 0.40f, 1.00f, 1f));
 
-            mat.SetFloat("_SwirlScale",      5.0f);   // density of swirls
-            mat.SetFloat("_SwirlSpeed",      0.25f);  // animation speed
-            mat.SetFloat("_SwirlWidth",      0.18f);  // line thickness
-            mat.SetFloat("_SwirlSharpness",  9.0f);   // how crisp the lines are
-            mat.SetFloat("_EmissionPower",   3.5f);   // glow brightness
-            mat.SetFloat("_IridPower",       2.5f);   // angle of iridescence falloff
-            mat.SetFloat("_IridStrength",    0.9f);   // rainbow shimmer intensity
+            mat.SetFloat("_SwirlScale",      5.0f);
+            mat.SetFloat("_SwirlSpeed",      0.25f);
+            mat.SetFloat("_SwirlWidth",      0.18f);
+            mat.SetFloat("_SwirlSharpness",  9.0f);
+            mat.SetFloat("_EmissionPower",   3.5f);
+            mat.SetFloat("_IridPower",       2.5f);
+            mat.SetFloat("_IridStrength",    0.9f);
             mat.SetFloat("_Metallic",        0.85f);
             mat.SetFloat("_Smoothness",      0.92f);
         }
         else
         {
-            // Fallback: plain deep metallic teal if shader not found yet
-            Debug.LogWarning("Custom/SwirlingSphere shader not found. Using fallback material.");
-            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            mat.name = "SwirlingSphere_Fallback";
-            mat.SetColor("_BaseColor", new Color(0.02f, 0.08f, 0.15f, 1f));
-            mat.SetFloat("_Metallic",   0.9f);
-            mat.SetFloat("_Smoothness", 0.95f);
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_EmissionColor", new Color(0f, 0.8f, 0.6f) * 2f);
+            // ── Priority 3: Hard fallback – plain URP/Lit material ────────────
+            Debug.LogWarning("[BallMovement] Custom/SwirlingSphere shader not found and Resources/PlayerSphereMat missing. Using plain fallback.");
+            Shader fallbackShader = Shader.Find("Universal Render Pipeline/Lit")
+                                  ?? Shader.Find("Standard")
+                                  ?? Shader.Find("Diffuse");
+
+            if (fallbackShader == null)
+            {
+                Debug.LogError("[BallMovement] No usable shader found – sphere will be pink/invisible.");
+                return;
+            }
+
+            mat = new Material(fallbackShader);
+            mat.name = "SwirlingSphere_HardFallback";
+            if (mat.HasProperty("_BaseColor"))
+                mat.SetColor("_BaseColor", new Color(0.05f, 0.55f, 0.85f, 1f));
+            mat.color = new Color(0.05f, 0.55f, 0.85f, 1f);
+            if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic",   0.9f);
+            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.95f);
+            if (mat.HasProperty("_EmissionColor"))
+            {
+                mat.EnableKeyword("_EMISSION");
+                mat.SetColor("_EmissionColor", new Color(0f, 0.8f, 0.6f) * 2f);
+            }
         }
 
         renderer.material = mat;

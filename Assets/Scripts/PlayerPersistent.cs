@@ -33,5 +33,26 @@ public class PlayerPersistent : MonoBehaviour
         if (GetComponent<DashStrikeSkill>() == null) gameObject.AddComponent<DashStrikeSkill>();
         if (GetComponent<EnergyBoltSkill>() == null) gameObject.AddComponent<EnergyBoltSkill>();
         if (GetComponent<BallMovement>() == null) gameObject.AddComponent<BallMovement>();
+
+        // Fix for primitive player not rendering in standalone builds
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
+            if (litShader == null) litShader = Shader.Find("Standard");
+            if (litShader == null) litShader = Shader.Find("Diffuse");
+
+            if (litShader != null)
+            {
+                Material mat = new Material(litShader);
+                Color playerColor = new Color(0.1f, 0.6f, 1.0f); // Bright blue
+                mat.color = playerColor;
+                if (mat.HasProperty("_BaseColor"))
+                {
+                    mat.SetColor("_BaseColor", playerColor);
+                }
+                renderer.material = mat;
+            }
+        }
     }
 }
