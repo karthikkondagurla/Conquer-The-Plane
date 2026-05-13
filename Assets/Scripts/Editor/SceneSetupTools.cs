@@ -295,10 +295,24 @@ public class SceneSetupTools : EditorWindow
             whMax = DifficultyConfig.Instance.WormholesPerMapMax + 1; // Random.Range max is exclusive
         }
         int wormholeCount = Random.Range(whMin, whMax);
+        const float wormholeSeparation = 4f;
+        const int wormholePlacementAttempts = 20;
+        List<Vector3> placedWormholes = new List<Vector3>();
         for (int k = 0; k < wormholeCount; k++)
         {
-            Vector3 pos = new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f));
-            CreateWormhole(pos, theme);
+            Vector3 best = new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f));
+            float bestDist = 0f;
+            for (int attempt = 0; attempt < wormholePlacementAttempts; attempt++)
+            {
+                Vector3 candidate = new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f));
+                float minDist = float.MaxValue;
+                foreach (Vector3 placed in placedWormholes)
+                    minDist = Mathf.Min(minDist, Vector2.Distance(new Vector2(candidate.x, candidate.z), new Vector2(placed.x, placed.z)));
+                if (placedWormholes.Count == 0 || minDist >= wormholeSeparation) { best = candidate; break; }
+                if (minDist > bestDist) { bestDist = minDist; best = candidate; }
+            }
+            placedWormholes.Add(best);
+            CreateWormhole(best, theme);
         }
 
         // === Walls with neon trim ===

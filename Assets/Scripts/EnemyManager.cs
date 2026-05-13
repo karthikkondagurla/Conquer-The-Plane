@@ -70,10 +70,19 @@ public class EnemyManager : MonoBehaviour
                 Renderer r = enemyGO.GetComponent<Renderer>();
                 Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
                 if (litShader == null) litShader = Shader.Find("Standard");
-                Material m = new Material(litShader);
-                m.SetColor("_BaseColor", Color.black);
-                m.color = Color.black;
-                r.sharedMaterial = m;
+                
+                if (litShader != null)
+                {
+                    Material m = new Material(litShader);
+                    m.SetColor("_BaseColor", Color.black);
+                    m.color = Color.black;
+                    r.sharedMaterial = m;
+                }
+                else
+                {
+                    // If shaders are stripped in build, fallback to modifying the default primitive material
+                    r.material.color = Color.black;
+                }
                 
                  // Physics (Fallback)
                 Rigidbody rb = enemyGO.AddComponent<Rigidbody>();

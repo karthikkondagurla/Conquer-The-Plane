@@ -63,8 +63,8 @@ public class DifficultyConfig : MonoBehaviour
                 SpikeCooldown = 2f;
                 MaxSpikes = 7;
                 VictoryTime = 30f;
-                WormholeRelocateMin = 3f;
-                WormholeRelocateMax = 8f;
+                WormholeRelocateMin = 2f;
+                WormholeRelocateMax = 5f;
                 WormholesPerMapMin = 4;
                 WormholesPerMapMax = 6;
                 ShockwaveCooldown = 4f;
@@ -83,8 +83,8 @@ public class DifficultyConfig : MonoBehaviour
                 SpikeCooldown = 3f;
                 MaxSpikes = 5;
                 VictoryTime = 45f;
-                WormholeRelocateMin = 5f;
-                WormholeRelocateMax = 15f;
+                WormholeRelocateMin = 3f;
+                WormholeRelocateMax = 8f;
                 WormholesPerMapMin = 2;
                 WormholesPerMapMax = 4;
                 ShockwaveCooldown = 5f;
@@ -103,8 +103,8 @@ public class DifficultyConfig : MonoBehaviour
                 SpikeCooldown = 5f;
                 MaxSpikes = 3;
                 VictoryTime = 60f;
-                WormholeRelocateMin = 10f;
-                WormholeRelocateMax = 20f;
+                WormholeRelocateMin = 5f;
+                WormholeRelocateMax = 10f;
                 WormholesPerMapMin = 1;
                 WormholesPerMapMax = 3;
                 ShockwaveCooldown = 7f;
@@ -123,8 +123,8 @@ public class DifficultyConfig : MonoBehaviour
                 SpikeCooldown = 8f;
                 MaxSpikes = 2;
                 VictoryTime = 90f;
-                WormholeRelocateMin = 20f;
-                WormholeRelocateMax = 40f;
+                WormholeRelocateMin = 8f;
+                WormholeRelocateMax = 18f;
                 WormholesPerMapMin = 1;
                 WormholesPerMapMax = 2;
                 ShockwaveCooldown = 10f;
