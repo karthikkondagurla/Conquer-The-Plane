@@ -150,6 +150,31 @@ public class MapStatusUI : MonoBehaviour
         stRect.sizeDelta = new Vector2(270, 32);
     }
 
+    private int GetCurrentMapID()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName.StartsWith("Map"))
+        {
+            if (int.TryParse(sceneName.Substring(3), out int mapID))
+            {
+                return mapID;
+            }
+        }
+        return -1;
+    }
+
+    private string GetMapName(int mapID)
+    {
+        switch (mapID)
+        {
+            case 1: return "Plane L";
+            case 2: return "Plane P";
+            case 3: return "Plane B";
+            case 4: return "Plane Y";
+            default: return $"Map {mapID}";
+        }
+    }
+
     private void CreateMapCard(Transform parent, int mapID, float yOffset)
     {
         // Outer border
@@ -178,7 +203,7 @@ public class MapStatusUI : MonoBehaviour
         GameObject nameGO = new GameObject("MapNameText");
         nameGO.transform.SetParent(borderGO.transform, false);
         Text mapNameText = nameGO.AddComponent<Text>();
-        mapNameText.text = $"Map {mapID}";
+        mapNameText.text = GetMapName(mapID);
         mapNameText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         mapNameText.fontSize = 20;
         mapNameText.fontStyle = FontStyle.Bold;
@@ -218,6 +243,7 @@ public class MapStatusUI : MonoBehaviour
         if (EnemyManager.Instance == null) return;
 
         int demandingMapID = GameWinManager.Instance != null ? GameWinManager.Instance.DemandingMapID : 0;
+        int currentMapID = GetCurrentMapID();
 
         List<KeyValuePair<int, int>> mapCounts = new List<KeyValuePair<int, int>>();
         for (int mapID = 1; mapID <= 4; mapID++)
@@ -241,12 +267,13 @@ public class MapStatusUI : MonoBehaviour
             RectTransform borderRect = mapCardBorders[mapID].GetComponent<RectTransform>();
             float yPos = 28 + i * 62;
             borderRect.anchoredPosition = new Vector2(0, -yPos);
+            borderRect.sizeDelta = new Vector2(mapID == currentMapID ? 295 : 270, 58);
 
             if (mapID == demandingMapID)
             {
                 mapCardBorders[mapID].color = new Color(1f, 0.75f, 0f, 0.7f);
                 mapCardImages[mapID].color = new Color(0.12f, 0.08f, 0.02f, 0.9f);
-                mapNameTexts[mapID].text = $"⚡ Map {mapID}";
+                mapNameTexts[mapID].text = $"⚡ {GetMapName(mapID)}";
                 mapNameTexts[mapID].color = new Color(1f, 0.85f, 0.2f);
                 mapCountTexts[mapID].color = new Color(1f, 0.85f, 0.2f, 0.8f);
             }
@@ -254,7 +281,7 @@ public class MapStatusUI : MonoBehaviour
             {
                 mapCardBorders[mapID].color = new Color(0.3f, 0.3f, 0.35f, 0.4f);
                 mapCardImages[mapID].color = new Color(0.06f, 0.06f, 0.09f, 0.9f);
-                mapNameTexts[mapID].text = $"Map {mapID}";
+                mapNameTexts[mapID].text = GetMapName(mapID);
                 mapNameTexts[mapID].color = new Color(0.8f, 0.8f, 0.85f);
                 mapCountTexts[mapID].color = new Color(0.6f, 0.6f, 0.65f);
             }
